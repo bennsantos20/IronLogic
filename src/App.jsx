@@ -12,6 +12,21 @@ function App() {
   (exercise) => exercise.equipment === equipment
 );
 
+const getSetsAndReps = () => {
+  if (goal === "strength") {
+    return "4 sets x 4-6 reps";
+  }
+
+  if (goal === "hypertrophy") {
+    return "3 sets x 8-12 reps";
+  }
+
+  if (goal === "endurance") {
+    return "2-3 sets x 15-20 reps";
+  }
+
+  return "3 sets x 8-10 reps";
+};
 
 const generateWorkoutPlan = () => {
   const numberOfDays = Number(days);
@@ -31,7 +46,10 @@ const generateWorkoutPlan = () => {
 
   filteredExercises.forEach((exercise, index) => {
     const dayIndex = index % numberOfDays;
-    plan[dayIndex].exercises.push(exercise);
+    plan[dayIndex].exercises.push({
+      ...exercise,
+      prescription: getSetsAndReps(),
+    });
   });
 
   return plan;
@@ -129,7 +147,9 @@ const generateWorkoutPlan = () => {
               <h3>{dayPlan.day}</h3>
               <ul>
                 {dayPlan.exercises.map((exercise) => (
-                  <li key={exercise.name}>{exercise.name}</li>
+                  <li key={exercise.name}>
+                    {exercise.name} - {exercise.prescription}
+                  </li>
                 ))}
               </ul>
             </div>
