@@ -28,12 +28,31 @@ const getSetsAndReps = () => {
   return "3 sets x 8-10 reps";
 };
 
+const getExercisesPerDay = () => {
+  if (duration === "30") {
+    return 3;
+  }
+
+  if (duration === "45") {
+    return 4;
+  }
+
+  if (duration === "60") {
+    return 5;
+  }
+
+  return 4;
+};
+
 const generateWorkoutPlan = () => {
   const numberOfDays = Number(days);
+  const exercisesPerDay = getExercisesPerDay();
+  const maxExercises = numberOfDays * exercisesPerDay;
+  
 
   if (!numberOfDays || filteredExercises.length === 0) {
-    return [];
-  }
+  return [];
+}
 
   const plan = [];
 
@@ -44,13 +63,21 @@ const generateWorkoutPlan = () => {
     });
   }
 
-  filteredExercises.forEach((exercise, index) => {
-    const dayIndex = index % numberOfDays;
+  for (let i = 0; i < maxExercises; i++) {
+  const exercise = filteredExercises[i % filteredExercises.length];
+  const dayIndex = Math.floor(i / exercisesPerDay);
+
+  if (dayIndex < numberOfDays) {
     plan[dayIndex].exercises.push({
       ...exercise,
+      name:
+        i >= filteredExercises.length
+          ? `${exercise.name} (Repeat)`
+          : exercise.name,
       prescription: getSetsAndReps(),
     });
-  });
+  }
+}
 
   return plan;
 };

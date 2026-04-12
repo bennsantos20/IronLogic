@@ -1,4 +1,5 @@
 const exerciseData = [
+  // FULL GYM
   {
     name: "Bench Press",
     muscleGroup: "chest",
@@ -6,7 +7,31 @@ const exerciseData = [
     type: "compound",
   },
   {
+    name: "Incline Dumbbell Press",
+    muscleGroup: "chest",
+    equipment: "full-gym",
+    type: "compound",
+  },
+  {
+    name: "Cable Chest Fly",
+    muscleGroup: "chest",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
     name: "Lat Pulldown",
+    muscleGroup: "back",
+    equipment: "full-gym",
+    type: "compound",
+  },
+  {
+    name: "Seated Cable Row",
+    muscleGroup: "back",
+    equipment: "full-gym",
+    type: "compound",
+  },
+  {
+    name: "Chest-Supported Row",
     muscleGroup: "back",
     equipment: "full-gym",
     type: "compound",
@@ -18,13 +43,43 @@ const exerciseData = [
     type: "compound",
   },
   {
+    name: "Leg Extension",
+    muscleGroup: "legs",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
+    name: "Leg Curl",
+    muscleGroup: "legs",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
     name: "Shoulder Press Machine",
     muscleGroup: "shoulders",
     equipment: "full-gym",
     type: "compound",
   },
   {
+    name: "Lateral Raise Machine",
+    muscleGroup: "shoulders",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
+    name: "Rear Delt Fly Machine",
+    muscleGroup: "shoulders",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
     name: "Bicep Curl Machine",
+    muscleGroup: "arms",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
+    name: "Cable Bicep Curl",
     muscleGroup: "arms",
     equipment: "full-gym",
     type: "isolation",
@@ -36,7 +91,39 @@ const exerciseData = [
     type: "isolation",
   },
   {
+    name: "Overhead Cable Tricep Extension",
+    muscleGroup: "arms",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
+    name: "Cable Crunch",
+    muscleGroup: "core",
+    equipment: "full-gym",
+    type: "isolation",
+  },
+  {
+    name: "Hanging Knee Raise",
+    muscleGroup: "core",
+    equipment: "full-gym",
+    type: "compound",
+  },
+
+  // DUMBBELLS
+  {
     name: "Goblet Squat",
+    muscleGroup: "legs",
+    equipment: "dumbbells",
+    type: "compound",
+  },
+  {
+    name: "Dumbbell Romanian Deadlift",
+    muscleGroup: "legs",
+    equipment: "dumbbells",
+    type: "compound",
+  },
+  {
+    name: "Dumbbell Reverse Lunge",
     muscleGroup: "legs",
     equipment: "dumbbells",
     type: "compound",
@@ -48,7 +135,25 @@ const exerciseData = [
     type: "compound",
   },
   {
+    name: "Incline Dumbbell Press",
+    muscleGroup: "chest",
+    equipment: "dumbbells",
+    type: "compound",
+  },
+  {
+    name: "Dumbbell Fly",
+    muscleGroup: "chest",
+    equipment: "dumbbells",
+    type: "isolation",
+  },
+  {
     name: "One-Arm Dumbbell Row",
+    muscleGroup: "back",
+    equipment: "dumbbells",
+    type: "compound",
+  },
+  {
+    name: "Dumbbell Pullover",
     muscleGroup: "back",
     equipment: "dumbbells",
     type: "compound",
@@ -60,7 +165,25 @@ const exerciseData = [
     type: "compound",
   },
   {
+    name: "Dumbbell Lateral Raise",
+    muscleGroup: "shoulders",
+    equipment: "dumbbells",
+    type: "isolation",
+  },
+  {
+    name: "Dumbbell Rear Delt Fly",
+    muscleGroup: "shoulders",
+    equipment: "dumbbells",
+    type: "isolation",
+  },
+  {
     name: "Dumbbell Bicep Curl",
+    muscleGroup: "arms",
+    equipment: "dumbbells",
+    type: "isolation",
+  },
+  {
+    name: "Hammer Curl",
     muscleGroup: "arms",
     equipment: "dumbbells",
     type: "isolation",
@@ -72,13 +195,51 @@ const exerciseData = [
     type: "isolation",
   },
   {
+    name: "Dumbbell Skull Crusher",
+    muscleGroup: "arms",
+    equipment: "dumbbells",
+    type: "isolation",
+  },
+  {
+    name: "Weighted Sit-Up",
+    muscleGroup: "core",
+    equipment: "dumbbells",
+    type: "compound",
+  },
+  {
+    name: "Dumbbell Russian Twist",
+    muscleGroup: "core",
+    equipment: "dumbbells",
+    type: "isolation",
+  },
+
+  // BODYWEIGHT
+  {
     name: "Push-Up",
     muscleGroup: "chest",
     equipment: "bodyweight",
     type: "compound",
   },
   {
+    name: "Wide Push-Up",
+    muscleGroup: "chest",
+    equipment: "bodyweight",
+    type: "compound",
+  },
+  {
+    name: "Diamond Push-Up",
+    muscleGroup: "chest",
+    equipment: "bodyweight",
+    type: "compound",
+  },
+  {
     name: "Bodyweight Squat",
+    muscleGroup: "legs",
+    equipment: "bodyweight",
+    type: "compound",
+  },
+  {
+    name: "Walking Lunge",
     muscleGroup: "legs",
     equipment: "bodyweight",
     type: "compound",
@@ -96,8 +257,32 @@ const exerciseData = [
     type: "isolation",
   },
   {
+    name: "Prone Y-Raise",
+    muscleGroup: "back",
+    equipment: "bodyweight",
+    type: "isolation",
+  },
+  {
     name: "Pike Push-Up",
     muscleGroup: "shoulders",
+    equipment: "bodyweight",
+    type: "compound",
+  },
+  {
+    name: "Wall Walk",
+    muscleGroup: "shoulders",
+    equipment: "bodyweight",
+    type: "compound",
+  },
+  {
+    name: "Chair Dip",
+    muscleGroup: "arms",
+    equipment: "bodyweight",
+    type: "compound",
+  },
+  {
+    name: "Close-Grip Push-Up",
+    muscleGroup: "arms",
     equipment: "bodyweight",
     type: "compound",
   },
@@ -106,6 +291,18 @@ const exerciseData = [
     muscleGroup: "core",
     equipment: "bodyweight",
     type: "isolation",
+  },
+  {
+    name: "Dead Bug",
+    muscleGroup: "core",
+    equipment: "bodyweight",
+    type: "isolation",
+  },
+  {
+    name: "Mountain Climber",
+    muscleGroup: "core",
+    equipment: "bodyweight",
+    type: "compound",
   },
 ];
 
