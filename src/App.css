@@ -36,3 +36,19 @@ button {
 button:hover {
   opacity: 0.9;
 }
+
+.results {
+  margin-top: 40px;
+}
+
+.day-card {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.day-card h3 {
+  margin-top: 0;
+}

@@ -6,24 +6,53 @@ function App() {
   const [duration, setDuration] = useState("");
   const [goal, setGoal] = useState("");
   const [equipment, setEquipment] = useState("");
+  const [workoutPlan, setWorkoutPlan] = useState([]);
 
   const filteredExercises = exerciseData.filter(
   (exercise) => exercise.equipment === equipment
 );
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
 
-    console.log({
-      days,
-      duration,
-      goal,
-      equipment,
+const generateWorkoutPlan = () => {
+  const numberOfDays = Number(days);
+
+  if (!numberOfDays || filteredExercises.length === 0) {
+    return [];
+  }
+
+  const plan = [];
+
+  for (let i = 0; i < numberOfDays; i++) {
+    plan.push({
+      day: `Day ${i + 1}`,
+      exercises: [],
     });
+  }
 
-    console.log(filteredExercises);
+  filteredExercises.forEach((exercise, index) => {
+    const dayIndex = index % numberOfDays;
+    plan[dayIndex].exercises.push(exercise);
+  });
 
-  };
+  return plan;
+};
+
+  const handleSubmit = (event) => {
+  event.preventDefault();
+
+  const generatedPlan = generateWorkoutPlan();
+
+  console.log({
+    days,
+    duration,
+    goal,
+    equipment,
+  });
+
+  console.log(generatedPlan);
+
+  setWorkoutPlan(generatedPlan);
+};
 
   return (
     <div className="app">
@@ -90,7 +119,28 @@ function App() {
 
         <button type="submit">Generate Plan</button>
       </form>
+
+            {workoutPlan.length > 0 && (
+        <div className="results">
+          <h2>Your Workout Plan</h2>
+
+          {workoutPlan.map((dayPlan) => (
+            <div key={dayPlan.day} className="day-card">
+              <h3>{dayPlan.day}</h3>
+              <ul>
+                {dayPlan.exercises.map((exercise) => (
+                  <li key={exercise.name}>{exercise.name}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+
+
     </div>
+
+    
   );
 }
 
