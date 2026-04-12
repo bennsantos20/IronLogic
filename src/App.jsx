@@ -44,15 +44,70 @@ const getExercisesPerDay = () => {
   return 4;
 };
 
+const groupExercisesByMuscle = () => {
+  return {
+    chest: filteredExercises.filter((exercise) => exercise.muscleGroup === "chest"),
+    back: filteredExercises.filter((exercise) => exercise.muscleGroup === "back"),
+    legs: filteredExercises.filter((exercise) => exercise.muscleGroup === "legs"),
+    shoulders: filteredExercises.filter((exercise) => exercise.muscleGroup === "shoulders"),
+    arms: filteredExercises.filter((exercise) => exercise.muscleGroup === "arms"),
+    core: filteredExercises.filter((exercise) => exercise.muscleGroup === "core"),
+  };
+};
+
+const getDayTemplates = () => {
+  const numberOfDays = Number(days);
+
+  if (numberOfDays === 2) {
+    return [
+      ["chest", "back", "shoulders", "arms"],
+      ["legs", "core"],
+    ];
+  }
+
+  if (numberOfDays === 3) {
+    return [
+      ["chest", "shoulders", "arms"],
+      ["back", "arms", "core"],
+      ["legs", "core"],
+    ];
+  }
+
+  if (numberOfDays === 4) {
+    return [
+      ["chest", "shoulders", "arms"],
+      ["back", "arms", "core"],
+      ["legs", "core"],
+      ["chest", "back", "shoulders", "arms"],
+    ];
+  }
+
+  if (numberOfDays === 5) {
+    return [
+      ["chest"],
+      ["back"],
+      ["legs"],
+      ["shoulders", "arms"],
+      ["core", "chest", "back"],
+    ];
+  }
+
+  return [
+    ["chest", "back"],
+    ["legs", "core"],
+    ["shoulders", "arms"],
+  ];
+};
+
 const generateWorkoutPlan = () => {
   const numberOfDays = Number(days);
   const exercisesPerDay = getExercisesPerDay();
-  const maxExercises = numberOfDays * exercisesPerDay;
-  
+  const groupedExercises = groupExercisesByMuscle();
+  const dayTemplates = getDayTemplates();
 
   if (!numberOfDays || filteredExercises.length === 0) {
-  return [];
-}
+    return [];
+  }
 
   const plan = [];
 
@@ -63,21 +118,36 @@ const generateWorkoutPlan = () => {
     });
   }
 
-  for (let i = 0; i < maxExercises; i++) {
-  const exercise = filteredExercises[i % filteredExercises.length];
-  const dayIndex = Math.floor(i / exercisesPerDay);
+  for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
+    const template = dayTemplates[dayIndex] || [];
+    let exerciseCount = 0;
+    let templatePosition = 0;
 
-  if (dayIndex < numberOfDays) {
-    plan[dayIndex].exercises.push({
-      ...exercise,
-      name:
-        i >= filteredExercises.length
-          ? `${exercise.name} (Repeat)`
-          : exercise.name,
-      prescription: getSetsAndReps(),
-    });
+    while (exerciseCount < exercisesPerDay && template.length > 0) {
+      const muscleGroup = template[templatePosition % template.length];
+      const muscleExercises = groupedExercises[muscleGroup] || [];
+
+      if (muscleExercises.length > 0) {
+        const chosenExercise =
+          muscleExercises[exerciseCount % muscleExercises.length];
+
+        plan[dayIndex].exercises.push({
+          ...chosenExercise,
+          name:
+            plan[dayIndex].exercises.some(
+              (exercise) => exercise.name === chosenExercise.name
+            )
+              ? `${chosenExercise.name} (Repeat)`
+              : chosenExercise.name,
+          prescription: getSetsAndReps(),
+        });
+
+        exerciseCount++;
+      }
+
+      templatePosition++;
+    }
   }
-}
 
   return plan;
 };
