@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import exerciseData from "./exerciseData";
 
 function App() {
@@ -8,10 +8,23 @@ function App() {
   const [equipment, setEquipment] = useState("");
   const [workoutPlan, setWorkoutPlan] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [savedWorkouts, setSavedWorkouts] = useState([]);
+
+  useEffect(() => {
+  const storedWorkouts = localStorage.getItem("savedWorkouts");
+
+  if (storedWorkouts) {
+    setSavedWorkouts(JSON.parse(storedWorkouts));
+  }
+  }, []);
+
+  useEffect(() => {
+  localStorage.setItem("savedWorkouts", JSON.stringify(savedWorkouts));
+  }, [savedWorkouts]);
 
   const filteredExercises = exerciseData.filter(
   (exercise) => exercise.equipment === equipment
-);
+  );
 
 const getSetsAndReps = () => {
   if (goal === "strength") {
@@ -153,6 +166,23 @@ const generateWorkoutPlan = () => {
   return plan;
 };
 
+const handleSaveWorkout = () => {
+  if (workoutPlan.length === 0) {
+    return;
+  }
+
+  const newSavedWorkout = {
+    id: Date.now(),
+    title: `${days}-Day ${goal} Plan (${equipment})`,
+    plan: workoutPlan,
+  };
+
+  setSavedWorkouts((previousWorkouts) => [
+    ...previousWorkouts,
+    newSavedWorkout,
+  ]);
+};
+
 const handleReset = () => {
   setDays("");
   setDuration("");
@@ -253,6 +283,9 @@ const handleReset = () => {
         </div>
 
         <button type="submit">Generate Plan</button>
+        <button type="button" onClick={handleSaveWorkout}>
+          Save Workout
+        </button>
         <button type="button" onClick={handleReset}>
           Reset
         </button>
@@ -278,6 +311,30 @@ const handleReset = () => {
         </div>
       )}
 
+      {savedWorkouts.length > 0 && (
+  <div className="results">
+    <h2>Saved Workouts</h2>
+
+    {savedWorkouts.map((savedWorkout) => (
+      <div key={savedWorkout.id} className="day-card">
+        <h3>{savedWorkout.title}</h3>
+
+        {savedWorkout.plan.map((dayPlan) => (
+          <div key={dayPlan.day}>
+            <h4>{dayPlan.day}</h4>
+            <ul>
+              {dayPlan.exercises.map((exercise, index) => (
+                <li key={index}>
+                  {exercise.name} - {exercise.prescription}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+)}
 
     </div>
 
