@@ -7,6 +7,7 @@ function App() {
   const [goal, setGoal] = useState("");
   const [equipment, setEquipment] = useState("");
   const [workoutPlan, setWorkoutPlan] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const filteredExercises = exerciseData.filter(
   (exercise) => exercise.equipment === equipment
@@ -152,8 +153,25 @@ const generateWorkoutPlan = () => {
   return plan;
 };
 
+const handleReset = () => {
+  setDays("");
+  setDuration("");
+  setGoal("");
+  setEquipment("");
+  setWorkoutPlan([]);
+  setErrorMessage("");
+};
+
   const handleSubmit = (event) => {
   event.preventDefault();
+
+  if (!days || !duration || !goal || !equipment) {
+    setErrorMessage("Please complete all fields before generating a workout plan.");
+    setWorkoutPlan([]);
+    return;
+  }
+
+  setErrorMessage("");
 
   const generatedPlan = generateWorkoutPlan();
 
@@ -173,6 +191,8 @@ const generateWorkoutPlan = () => {
     <div className="app">
       <h1>Workout Plan Generator</h1>
       <p>Enter your workout preferences below.</p>
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <form className="workout-form" onSubmit={handleSubmit}>
         <div className="form-group">
@@ -233,6 +253,10 @@ const generateWorkoutPlan = () => {
         </div>
 
         <button type="submit">Generate Plan</button>
+        <button type="button" onClick={handleReset}>
+          Reset
+        </button>
+        
       </form>
 
             {workoutPlan.length > 0 && (
