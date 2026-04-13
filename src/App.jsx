@@ -114,6 +114,18 @@ const getDayTemplates = () => {
   ];
 };
 
+const getNextExercise = (muscleExercises, usedExerciseNames) => {
+  const unusedExercises = muscleExercises.filter(
+    (exercise) => !usedExerciseNames.includes(exercise.name)
+  );
+
+  if (unusedExercises.length > 0) {
+    return unusedExercises[0];
+  }
+
+  return null;
+};
+
 const generateWorkoutPlan = () => {
   const numberOfDays = Number(days);
   const exercisesPerDay = getExercisesPerDay();
@@ -135,32 +147,57 @@ const generateWorkoutPlan = () => {
 
   for (let dayIndex = 0; dayIndex < numberOfDays; dayIndex++) {
     const template = dayTemplates[dayIndex] || [];
-    let exerciseCount = 0;
-    let templatePosition = 0;
+    const usedExerciseNames = [];
+    let safetyCounter = 0;
 
-    while (exerciseCount < exercisesPerDay && template.length > 0) {
-      const muscleGroup = template[templatePosition % template.length];
-      const muscleExercises = groupedExercises[muscleGroup] || [];
+    while (
+      plan[dayIndex].exercises.length < exercisesPerDay &&
+      safetyCounter < 50
+    ) {
+      let addedExercise = false;
 
-      if (muscleExercises.length > 0) {
-        const chosenExercise =
-          muscleExercises[exerciseCount % muscleExercises.length];
+      for (let i = 0; i < template.length; i++) {
+        const muscleGroup = template[i];
+        const muscleExercises = groupedExercises[muscleGroup] || [];
 
-        plan[dayIndex].exercises.push({
-          ...chosenExercise,
-          name:
-            plan[dayIndex].exercises.some(
-              (exercise) => exercise.name === chosenExercise.name
-            )
-              ? `${chosenExercise.name} (Repeat)`
-              : chosenExercise.name,
-          prescription: getSetsAndReps(),
-        });
+        const chosenExercise = getNextExercise(
+          muscleExercises,
+          usedExerciseNames
+        );
 
-        exerciseCount++;
+        if (chosenExercise) {
+          plan[dayIndex].exercises.push({
+            ...chosenExercise,
+            prescription: getSetsAndReps(),
+          });
+
+          usedExerciseNames.push(chosenExercise.name);
+          addedExercise = true;
+
+          if (plan[dayIndex].exercises.length >= exercisesPerDay) {
+            break;
+          }
+        }
       }
 
-      templatePosition++;
+      if (!addedExercise) {
+        break;
+      }
+
+      safetyCounter++;
+    }
+
+    while (plan[dayIndex].exercises.length < exercisesPerDay) {
+      const fallbackExercise =
+        filteredExercises[
+          plan[dayIndex].exercises.length % filteredExercises.length
+        ];
+
+      plan[dayIndex].exercises.push({
+        ...fallbackExercise,
+        name: `${fallbackExercise.name} (Repeat)`,
+        prescription: getSetsAndReps(),
+      });
     }
   }
 
