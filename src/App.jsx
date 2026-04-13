@@ -466,6 +466,7 @@ const handleReset = () => {
           />
         </div>
 
+       <div className="button-row">
         <button type="submit">Generate Plan</button>
         <button type="button" onClick={handleSaveWorkout}>
           Save Workout
@@ -473,12 +474,13 @@ const handleReset = () => {
         <button type="button" onClick={handleReset}>
           Reset
         </button>
+      </div>
         
       </form>
 
             {workoutPlan.length > 0 && (
         <div className="results">
-          <h2>Your Workout Plan</h2>
+          <h2 className="section-title">Your Workout Plan</h2> 
 
           {workoutPlan.map((dayPlan) => (
             <div key={dayPlan.day} className="day-card">
@@ -497,22 +499,24 @@ const handleReset = () => {
 
       {savedWorkouts.length > 0 && (
   <div className="results">
-    <h2>Saved Workouts</h2>
+    <h2 className="section-title">Saved Workouts</h2>
 
     {savedWorkouts.map((savedWorkout) => (
       <div key={savedWorkout.id} className="day-card">
         <h3>{savedWorkout.title}</h3>
 
-        <button type="button" onClick={() => handleLoadWorkout(savedWorkout)}>
-          Load Workout
-        </button>
+        <div className="saved-workout-actions">
+          <button type="button" onClick={() => handleLoadWorkout(savedWorkout)}>
+            Load Workout
+          </button>
 
-        <button
-          type="button"
-          onClick={() => handleDeleteWorkout(savedWorkout.id)}
-        >
-          Delete Saved Workout
-        </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteWorkout(savedWorkout.id)}
+          >
+            Delete Saved Workout
+          </button>
+        </div>
 
         {savedWorkout.plan.map((dayPlan) => (
           <div key={dayPlan.day}>
