@@ -8,6 +8,7 @@ function App() {
   const [equipment, setEquipment] = useState("");
   const [workoutPlan, setWorkoutPlan] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [workoutTitle, setWorkoutTitle] = useState("");
   
   const [savedWorkouts, setSavedWorkouts] = useState(() => {
     try {
@@ -171,11 +172,11 @@ const handleSaveWorkout = () => {
     return;
   }
 
-
-
   const newSavedWorkout = {
     id: Date.now().toString(),
-    title: `${days}-Day ${goal} Plan (${equipment})`,
+    title: workoutTitle.trim()
+      ? workoutTitle
+      : `${days}-Day ${goal} Plan (${equipment})`,
     plan: workoutPlan,
   };
 
@@ -196,6 +197,11 @@ const handleDeleteWorkout = (id) => {
   localStorage.setItem("savedWorkouts", JSON.stringify(updatedWorkouts));
 };
 
+const handleLoadWorkout = (savedWorkout) => {
+  setWorkoutPlan(savedWorkout.plan);
+  setErrorMessage("");
+};
+
 const handleReset = () => {
   setDays("");
   setDuration("");
@@ -203,6 +209,7 @@ const handleReset = () => {
   setEquipment("");
   setWorkoutPlan([]);
   setErrorMessage("");
+  setWorkoutTitle("");
 };
 
   const handleSubmit = (event) => {
@@ -295,6 +302,17 @@ const handleReset = () => {
           </select>
         </div>
 
+        <div className="form-group">
+          <label htmlFor="workoutTitle">Workout Title</label>
+          <input
+            id="workoutTitle"
+            type="text"
+            value={workoutTitle}
+            onChange={(e) => setWorkoutTitle(e.target.value)}
+            placeholder="Enter a name for this workout"
+          />
+        </div>
+
         <button type="submit">Generate Plan</button>
         <button type="button" onClick={handleSaveWorkout}>
           Save Workout
@@ -331,6 +349,10 @@ const handleReset = () => {
     {savedWorkouts.map((savedWorkout) => (
       <div key={savedWorkout.id} className="day-card">
         <h3>{savedWorkout.title}</h3>
+
+        <button type="button" onClick={() => handleLoadWorkout(savedWorkout)}>
+          Load Workout
+        </button>
 
         <button
           type="button"
