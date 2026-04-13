@@ -9,6 +9,7 @@ function App() {
   const [workoutPlan, setWorkoutPlan] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [workoutTitle, setWorkoutTitle] = useState("");
+  const [focus, setFocus] = useState("");
   
   const [savedWorkouts, setSavedWorkouts] = useState(() => {
     try {
@@ -59,19 +60,113 @@ const getExercisesPerDay = () => {
   return 4;
 };
 
+const getFocusMuscleGroups = () => {
+  if (focus === "upper-body") {
+    return ["chest", "back", "shoulders", "arms"];
+  }
+
+  if (focus === "lower-body") {
+    return ["legs", "core"];
+  }
+
+  if (focus === "push") {
+    return ["chest", "shoulders", "arms"];
+  }
+
+  if (focus === "pull") {
+    return ["back", "arms"];
+  }
+
+  if (focus === "legs") {
+    return ["legs", "core"];
+  }
+
+  return ["chest", "back", "legs", "shoulders", "arms", "core"];
+};
+
 const groupExercisesByMuscle = () => {
+  const allowedMuscleGroups = getFocusMuscleGroups();
+
   return {
-    chest: filteredExercises.filter((exercise) => exercise.muscleGroup === "chest"),
-    back: filteredExercises.filter((exercise) => exercise.muscleGroup === "back"),
-    legs: filteredExercises.filter((exercise) => exercise.muscleGroup === "legs"),
-    shoulders: filteredExercises.filter((exercise) => exercise.muscleGroup === "shoulders"),
-    arms: filteredExercises.filter((exercise) => exercise.muscleGroup === "arms"),
-    core: filteredExercises.filter((exercise) => exercise.muscleGroup === "core"),
+    chest: filteredExercises.filter(
+      (exercise) =>
+        exercise.muscleGroup === "chest" &&
+        allowedMuscleGroups.includes("chest")
+    ),
+    back: filteredExercises.filter(
+      (exercise) =>
+        exercise.muscleGroup === "back" &&
+        allowedMuscleGroups.includes("back")
+    ),
+    legs: filteredExercises.filter(
+      (exercise) =>
+        exercise.muscleGroup === "legs" &&
+        allowedMuscleGroups.includes("legs")
+    ),
+    shoulders: filteredExercises.filter(
+      (exercise) =>
+        exercise.muscleGroup === "shoulders" &&
+        allowedMuscleGroups.includes("shoulders")
+    ),
+    arms: filteredExercises.filter(
+      (exercise) =>
+        exercise.muscleGroup === "arms" &&
+        allowedMuscleGroups.includes("arms")
+    ),
+    core: filteredExercises.filter(
+      (exercise) =>
+        exercise.muscleGroup === "core" &&
+        allowedMuscleGroups.includes("core")
+    ),
   };
 };
 
 const getDayTemplates = () => {
   const numberOfDays = Number(days);
+
+  if (focus === "upper-body") {
+    if (numberOfDays === 2) {
+      return [
+        ["chest", "back", "shoulders"],
+        ["arms", "chest", "back"],
+      ];
+    }
+
+    return Array.from({ length: numberOfDays }, (_, index) =>
+      index % 2 === 0
+        ? ["chest", "back", "shoulders"]
+        : ["arms", "chest", "back"]
+    );
+  }
+
+  if (focus === "lower-body") {
+    return Array.from({ length: numberOfDays }, (_, index) =>
+      index % 2 === 0 ? ["legs", "core"] : ["legs", "core"]
+    );
+  }
+
+  if (focus === "push") {
+    return Array.from({ length: numberOfDays }, () => [
+      "chest",
+      "shoulders",
+      "arms",
+    ]);
+  }
+
+  if (focus === "pull") {
+    return Array.from({ length: numberOfDays }, () => [
+      "back",
+      "arms",
+      "core",
+    ]);
+  }
+
+  if (focus === "legs") {
+    return Array.from({ length: numberOfDays }, () => [
+      "legs",
+      "core",
+    ]);
+  }
 
   if (numberOfDays === 2) {
     return [
@@ -107,7 +202,7 @@ const getDayTemplates = () => {
     ];
   }
 
-  return [ 
+  return [
     ["chest", "back"],
     ["legs", "core"],
     ["shoulders", "arms"],
@@ -213,8 +308,9 @@ const handleSaveWorkout = () => {
     id: Date.now().toString(),
     title: workoutTitle.trim()
       ? workoutTitle
-      : `${days}-Day ${goal} Plan (${equipment})`,
+      : `${days}-Day ${goal} Plan (${equipment}, ${focus})`,
     plan: workoutPlan,
+    focus,
   };
 
   const updatedWorkouts = [...savedWorkouts, newSavedWorkout];
@@ -236,6 +332,7 @@ const handleDeleteWorkout = (id) => {
 
 const handleLoadWorkout = (savedWorkout) => {
   setWorkoutPlan(savedWorkout.plan);
+  setFocus(savedWorkout.focus || "");
   setErrorMessage("");
 };
 
@@ -247,12 +344,13 @@ const handleReset = () => {
   setWorkoutPlan([]);
   setErrorMessage("");
   setWorkoutTitle("");
+  setFocus("");
 };
 
   const handleSubmit = (event) => {
   event.preventDefault();
 
-  if (!days || !duration || !goal || !equipment) {
+  if (!days || !duration || !goal || !equipment || !focus) {
     setErrorMessage("Please complete all fields before generating a workout plan.");
     setWorkoutPlan([]);
     return;
@@ -336,6 +434,23 @@ const handleReset = () => {
             <option value="full-gym">Full Gym</option>
             <option value="dumbbells">Dumbbells Only</option>
             <option value="bodyweight">Bodyweight Only</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="focus">Workout Focus</label>
+          <select
+            id="focus"
+            value={focus}
+            onChange={(e) => setFocus(e.target.value)}
+          >
+            <option value="">Select focus</option>
+            <option value="full-body">Full Body</option>
+            <option value="upper-body">Upper Body</option>
+            <option value="lower-body">Lower Body</option>
+            <option value="push">Push</option>
+            <option value="pull">Pull</option>
+            <option value="legs">Legs</option>
           </select>
         </div>
 
