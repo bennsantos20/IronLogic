@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import exerciseData from "./exerciseData";
+import "./App.css";
 
 function App() {
   const [days, setDays] = useState("");

@@ -1,8 +1,63 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #222;
+}
+
+#root {
+  width: 100%;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+h1 {
+  margin-bottom: 10px;
+  font-size: 42px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+h4 {
+  margin-bottom: 8px;
+}
+
+p {
+  margin-top: 0;
+}
+
 .workout-form {
   margin-top: 30px;
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
   gap: 20px;
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
 }
 
 .form-group {
@@ -15,7 +70,8 @@ label {
   font-weight: bold;
 }
 
-select {
+select,
+input {
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -37,39 +93,34 @@ button:hover {
   opacity: 0.9;
 }
 
-.results {
-  margin-top: 40px;
-}
-
-.day-card {
-  margin-bottom: 20px;
-  padding: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-}
-
-.day-card h3 {
-  margin-top: 0;
-}
-
 .error-message {
   color: #b00020;
   font-weight: bold;
   margin-bottom: 16px;
 }
 
-.workout-form button + button {
-  margin-top: 10px;
+.results {
+  margin-top: 40px;
+}
+
+.day-card {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: white;
 }
 
 .day-card button {
   margin-bottom: 12px;
+  margin-right: 10px;
 }
 
-input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+ul {
+  margin-top: 8px;
+  padding-left: 20px;
+}
+
+.workout-form button + button {
+  margin-top: 10px;
 }
