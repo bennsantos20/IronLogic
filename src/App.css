@@ -62,3 +62,7 @@ button:hover {
 .workout-form button + button {
   margin-top: 10px;
 }
+
+.day-card button {
+  margin-bottom: 12px;
+}

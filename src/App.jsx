@@ -8,19 +8,19 @@ function App() {
   const [equipment, setEquipment] = useState("");
   const [workoutPlan, setWorkoutPlan] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [savedWorkouts, setSavedWorkouts] = useState([]);
-
-  useEffect(() => {
-  const storedWorkouts = localStorage.getItem("savedWorkouts");
-
-  if (storedWorkouts) {
-    setSavedWorkouts(JSON.parse(storedWorkouts));
+  
+  const [savedWorkouts, setSavedWorkouts] = useState(() => {
+    try {
+    const storedWorkouts = localStorage.getItem("savedWorkouts");
+    return storedWorkouts ? JSON.parse(storedWorkouts) : [];
+  } catch (error) {
+    return [];
   }
-  }, []);
+});
 
-  useEffect(() => {
-  localStorage.setItem("savedWorkouts", JSON.stringify(savedWorkouts));
-  }, [savedWorkouts]);
+ 
+
+ 
 
   const filteredExercises = exerciseData.filter(
   (exercise) => exercise.equipment === equipment
@@ -106,7 +106,7 @@ const getDayTemplates = () => {
     ];
   }
 
-  return [
+  return [ 
     ["chest", "back"],
     ["legs", "core"],
     ["shoulders", "arms"],
@@ -171,16 +171,29 @@ const handleSaveWorkout = () => {
     return;
   }
 
+
+
   const newSavedWorkout = {
-    id: Date.now(),
+    id: Date.now().toString(),
     title: `${days}-Day ${goal} Plan (${equipment})`,
     plan: workoutPlan,
   };
 
-  setSavedWorkouts((previousWorkouts) => [
-    ...previousWorkouts,
-    newSavedWorkout,
-  ]);
+  const updatedWorkouts = [...savedWorkouts, newSavedWorkout];
+
+  setSavedWorkouts(updatedWorkouts);
+  localStorage.setItem("savedWorkouts", JSON.stringify(updatedWorkouts));
+};
+
+const handleDeleteWorkout = (id) => {
+  console.log("Deleting workout with id:", id);
+
+  const updatedWorkouts = savedWorkouts.filter((workout) => workout.id !== id);
+
+  console.log("Updated workouts:", updatedWorkouts);
+
+  setSavedWorkouts(updatedWorkouts);
+  localStorage.setItem("savedWorkouts", JSON.stringify(updatedWorkouts));
 };
 
 const handleReset = () => {
@@ -318,6 +331,13 @@ const handleReset = () => {
     {savedWorkouts.map((savedWorkout) => (
       <div key={savedWorkout.id} className="day-card">
         <h3>{savedWorkout.title}</h3>
+
+        <button
+          type="button"
+          onClick={() => handleDeleteWorkout(savedWorkout.id)}
+        >
+          Delete Saved Workout
+        </button>
 
         {savedWorkout.plan.map((dayPlan) => (
           <div key={dayPlan.day}>
