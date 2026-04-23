@@ -11,6 +11,8 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [workoutTitle, setWorkoutTitle] = useState("");
   const [focus, setFocus] = useState("");
+  const [swapSelections, setSwapSelections] = useState({});
+  const [swapOptions, setSwapOptions] = useState({});
   
   const [savedWorkouts, setSavedWorkouts] = useState(() => {
     try {
@@ -20,10 +22,6 @@ function App() {
     return [];
   }
 });
-
- 
-
- 
 
   const filteredExercises = exerciseData.filter(
   (exercise) => exercise.equipment === equipment
@@ -300,6 +298,125 @@ const generateWorkoutPlan = () => {
   return plan;
 };
 
+const normalizeExerciseName = (name) => {
+  return name.replace(" (Repeat)", "");
+};
+
+const getSwapKey = (dayIndex, exerciseIndex) => {
+  return `${dayIndex}-${exerciseIndex}`;
+};
+
+const getAvailableSwapExercises = (dayIndex, exerciseIndex) => {
+  const currentExercise = workoutPlan[dayIndex]?.exercises[exerciseIndex];
+
+  if (!currentExercise) {
+    return [];
+  }
+
+  const currentExerciseName = normalizeExerciseName(currentExercise.name);
+
+  const usedExerciseNames = workoutPlan[dayIndex].exercises.map((exercise) =>
+    normalizeExerciseName(exercise.name)
+  );
+
+  const matchingExercises = exerciseData.filter((exercise) => {
+    return (
+      exercise.equipment === currentExercise.equipment &&
+      exercise.muscleGroup === currentExercise.muscleGroup &&
+      exercise.name !== currentExerciseName
+    );
+  });
+
+  const uniqueOptions = matchingExercises.filter((exercise) => {
+    return !usedExerciseNames.includes(exercise.name);
+  });
+
+  if (uniqueOptions.length > 0) {
+    return uniqueOptions;
+  }
+
+  return matchingExercises;
+};
+
+const handleOpenSwap = (dayIndex, exerciseIndex) => {
+  const key = getSwapKey(dayIndex, exerciseIndex);
+  const availableOptions = getAvailableSwapExercises(dayIndex, exerciseIndex);
+
+  setSwapOptions((prev) => ({
+    ...prev,
+    [key]: availableOptions,
+  }));
+
+  setSwapSelections((prev) => ({
+    ...prev,
+    [key]: "",
+  }));
+};
+
+const handleSwapSelectionChange = (dayIndex, exerciseIndex, selectedName) => {
+  const key = getSwapKey(dayIndex, exerciseIndex);
+
+  setSwapSelections((prev) => ({
+    ...prev,
+    [key]: selectedName,
+  }));
+};
+
+const handleConfirmSwap = (dayIndex, exerciseIndex) => {
+  const key = getSwapKey(dayIndex, exerciseIndex);
+  const selectedExerciseName = swapSelections[key];
+
+  if (!selectedExerciseName) {
+    return;
+  }
+
+  const selectedExercise = swapOptions[key]?.find(
+    (exercise) => exercise.name === selectedExerciseName
+  );
+
+  if (!selectedExercise) {
+    return;
+  }
+
+  const updatedWorkoutPlan = [...workoutPlan];
+  const currentExercise = updatedWorkoutPlan[dayIndex].exercises[exerciseIndex];
+
+  updatedWorkoutPlan[dayIndex].exercises[exerciseIndex] = {
+    ...selectedExercise,
+    prescription: currentExercise.prescription,
+  };
+
+  setWorkoutPlan(updatedWorkoutPlan);
+
+  setSwapOptions((prev) => {
+    const updated = { ...prev };
+    delete updated[key];
+    return updated;
+  });
+
+  setSwapSelections((prev) => {
+    const updated = { ...prev };
+    delete updated[key];
+    return updated;
+  });
+};
+
+const handleCancelSwap = (dayIndex, exerciseIndex) => {
+  const key = getSwapKey(dayIndex, exerciseIndex);
+
+  setSwapOptions((prev) => {
+    const updated = { ...prev };
+    delete updated[key];
+    return updated;
+  });
+
+  setSwapSelections((prev) => {
+    const updated = { ...prev };
+    delete updated[key];
+    return updated;
+  });
+};
+
 const handleSaveWorkout = () => {
   if (workoutPlan.length === 0) {
     return;
@@ -335,6 +452,8 @@ const handleLoadWorkout = (savedWorkout) => {
   setWorkoutPlan(savedWorkout.plan);
   setFocus(savedWorkout.focus || "");
   setErrorMessage("");
+  setSwapSelections({});
+  setSwapOptions({});
 };
 
 const handleReset = () => {
@@ -346,9 +465,11 @@ const handleReset = () => {
   setErrorMessage("");
   setWorkoutTitle("");
   setFocus("");
+  setSwapSelections({});
+  setSwapOptions({});
 };
 
-  const handleSubmit = (event) => {
+const handleSubmit = (event) => {
   event.preventDefault();
 
   if (!days || !duration || !goal || !equipment || !focus) {
@@ -371,6 +492,8 @@ const handleReset = () => {
   console.log(generatedPlan);
 
   setWorkoutPlan(generatedPlan);
+  setSwapSelections({});
+  setSwapOptions({});
 };
 
   return (
@@ -478,24 +601,76 @@ const handleReset = () => {
         
       </form>
 
-            {workoutPlan.length > 0 && (
-        <div className="results">
-          <h2 className="section-title">Your Workout Plan</h2> 
+{workoutPlan.length > 0 && (
+  <div className="results">
+    <h2 className="section-title">Your Workout Plan</h2>
 
-          {workoutPlan.map((dayPlan) => (
-            <div key={dayPlan.day} className="day-card">
-              <h3>{dayPlan.day}</h3>
-              <ul>
-                {dayPlan.exercises.map((exercise) => (
-                  <li key={exercise.name}>
+    {workoutPlan.map((dayPlan, dayIndex) => (
+      <div key={dayPlan.day} className="day-card">
+        <h3>{dayPlan.day}</h3>
+        <ul>
+          {dayPlan.exercises.map((exercise, exerciseIndex) => {
+            const swapKey = getSwapKey(dayIndex, exerciseIndex);
+            const currentSwapOptions = swapOptions[swapKey] || [];
+
+            return (
+              <li key={`${exercise.name}-${exerciseIndex}`}>
+                <div className="exercise-row">
+                  <span>
                     {exercise.name} - {exercise.prescription}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenSwap(dayIndex, exerciseIndex)}
+                  >
+                    Swap
+                  </button>
+                </div>
+
+                {swapOptions[swapKey] && (
+                  <div className="swap-controls">
+                    <select
+                      value={swapSelections[swapKey] || ""}
+                      onChange={(e) =>
+                        handleSwapSelectionChange(
+                          dayIndex,
+                          exerciseIndex,
+                          e.target.value
+                        )
+                      }
+                    >
+                      <option value="">Select replacement</option>
+                      {currentSwapOptions.map((option) => (
+                        <option key={option.name} value={option.name}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmSwap(dayIndex, exerciseIndex)}
+                    >
+                      Confirm
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCancelSwap(dayIndex, exerciseIndex)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </div>
+)}
 
       {savedWorkouts.length > 0 && (
   <div className="results">
@@ -534,10 +709,7 @@ const handleReset = () => {
     ))}
   </div>
 )}
-
     </div>
-
-    
   );
 }
 
