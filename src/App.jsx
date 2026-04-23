@@ -13,6 +13,7 @@ function App() {
   const [focus, setFocus] = useState("");
   const [swapSelections, setSwapSelections] = useState({});
   const [swapOptions, setSwapOptions] = useState({});
+  const [expandedSavedWorkouts, setExpandedSavedWorkouts] = useState({});
   
   const [savedWorkouts, setSavedWorkouts] = useState(() => {
     try {
@@ -41,6 +42,22 @@ const getSetsAndReps = () => {
   }
 
   return "3 sets x 8-10 reps";
+};
+
+const getProgressionGuidance = () => {
+  if (goal === "strength") {
+    return "If you complete all sets and reps with solid form, increase the weight slightly next week while keeping the same rep range.";
+  }
+
+  if (goal === "hypertrophy") {
+    return "Try to add 1 to 2 reps to each exercise before increasing the weight. Once you reach the top of the rep range, raise the load slightly.";
+  }
+
+  if (goal === "endurance") {
+    return "Focus on completing all reps with control. First add reps or reduce rest time, then increase resistance only when the current workload feels manageable.";
+  }
+
+  return "Use gradual overload over time by improving reps, control, or resistance while maintaining good technique.";
 };
 
 const getExercisesPerDay = () => {
@@ -118,6 +135,13 @@ const groupExercisesByMuscle = () => {
         allowedMuscleGroups.includes("core")
     ),
   };
+};
+
+const handleToggleSavedWorkout = (id) => {
+  setExpandedSavedWorkouts((prev) => ({
+    ...prev,
+    [id]: !prev[id],
+  }));
 };
 
 const getDayTemplates = () => {
@@ -623,6 +647,10 @@ const handleLoadWorkout = (savedWorkout) => {
   setSwapOptions({});
 };
 
+const handlePrintWorkout = () => {
+  window.print();
+};
+
 const handleReset = () => {
   setDays("");
   setDuration("");
@@ -665,12 +693,50 @@ const handleSubmit = (event) => {
 
   return (
     <div className="app">
-      <h1>Workout Plan Generator</h1>
-      <p>Enter your workout preferences below.</p>
+      <div className="hero">
+      <div className="hero-copy">
+      <div className="hero-badge">IronLogic</div>
+      <h1>Build Smarter Training Plans</h1>
+      <p>
+        IronLogic is a rule-based workout planner that generates structured weekly
+        plans based on your training days, duration, equipment, goal, and workout
+        focus.
+      </p>
+    </div>
+
+    <div className="hero-stats">
+      <div className="stat-card">
+        <span>Features</span>
+        <strong>Smart Generation</strong>
+      </div>
+    <div className="stat-card">
+      <span>Editing</span>
+      <strong>Swap + Regenerate</strong>
+    </div>
+    <div className="stat-card">
+      <span>Storage</span>
+      <strong>Save Workouts</strong>
+    </div>
+  </div>
+</div>
+
+    <div className="main-grid">
+
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
+      <div className="panel form-panel">
+        <div className="panel-header">
+        <h2>Plan Builder</h2>
+        <p>
+          Select your training preferences and generate a workout plan that fits
+          your available time, equipment, and training focus.
+        </p>
+      </div>
+
       <form className="workout-form" onSubmit={handleSubmit}>
+        <div className="form-grid">
+
         <div className="form-group">
           <label htmlFor="days">Training Days Per Week</label>
           <select
@@ -756,6 +822,8 @@ const handleSubmit = (event) => {
           />
         </div>
 
+        </div>
+
        <div className="button-row">
         <button type="submit">Generate Plan</button>
         <button type="button" onClick={handleSaveWorkout}>
@@ -767,10 +835,27 @@ const handleSubmit = (event) => {
       </div>
         
       </form>
+      </div>
+      <div className="content-column">
+
+      {workoutPlan.length === 0 && (
+  <div className="panel results">
+    <h2 className="section-title">Generated Workout</h2>
+    <div className="empty-state">
+      Your generated workout will appear here after you choose your preferences
+      and click <strong>Generate Plan</strong>.
+    </div>
+  </div>
+)}
 
 {workoutPlan.length > 0 && (
   <div className="results">
-    <h2 className="section-title">Your Workout Plan</h2>
+    <div className="day-card-header">
+      <h2 className="section-title">Your Workout Plan</h2>
+      <button type="button" onClick={handlePrintWorkout}>
+       Print Workout
+      </button>
+    </div>
 
     {workoutPlan.map((dayPlan, dayIndex) => (
       <div key={dayPlan.day} className="day-card">
@@ -792,9 +877,16 @@ const handleSubmit = (event) => {
             return (
               <li key={`${exercise.name}-${exerciseIndex}`}>
                 <div className="exercise-row">
-                  <span>
-                    {exercise.name} - {exercise.prescription}
-                  </span>
+                  <div className="exercise-main">
+                    <div className="exercise-name">
+                      {exercise.name} — {exercise.prescription}
+                    </div>
+
+                    <div className="exercise-meta">
+                      <span className="exercise-tag">{exercise.muscleGroup}</span>
+                      <span className="exercise-tag">{exercise.type}</span>
+                    </div>
+                  </div>
 
                   <button
                     type="button"
@@ -802,7 +894,7 @@ const handleSubmit = (event) => {
                   >
                     Swap
                   </button>
-                </div>
+              </div>
 
                 {swapOptions[swapKey] && (
                   <div className="swap-controls">
@@ -845,47 +937,75 @@ const handleSubmit = (event) => {
         </ul>
       </div>
     ))}
+
+    <div className="saved-workout-day">
+      <h4>Progression Guidance</h4>
+      <p>{getProgressionGuidance()}</p>
+    </div>
+    
   </div>
 )}
 
       {savedWorkouts.length > 0 && (
-  <div className="results">
-    <h2 className="section-title">Saved Workouts</h2>
+        <div className="panel results">
+          <h2 className="section-title">Saved Workouts</h2>
 
-    {savedWorkouts.map((savedWorkout) => (
-      <div key={savedWorkout.id} className="day-card">
-        <h3>{savedWorkout.title}</h3>
+          {savedWorkouts.map((savedWorkout) => (
+            <div key={savedWorkout.id} className="day-card">
+             <div className="saved-workout-title-row">
+              <h3>{savedWorkout.title}</h3>
+              <span className="saved-workout-badge">Saved Plan</span>
+            </div>
 
-        <div className="saved-workout-actions">
-          <button type="button" onClick={() => handleLoadWorkout(savedWorkout)}>
-            Load Workout
-          </button>
+            <button
+              type="button"
+              onClick={() => handleToggleSavedWorkout(savedWorkout.id)}
+            >
+              {expandedSavedWorkouts[savedWorkout.id] ? "Hide Details" : "Show Details"}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleDeleteWorkout(savedWorkout.id)}
-          >
-            Delete Saved Workout
-          </button>
+              <div className="saved-workout-actions">
+                  <button
+              type="button"
+              onClick={() => handleToggleSavedWorkout(savedWorkout.id)}
+            >
+              {expandedSavedWorkouts[savedWorkout.id] ? "Hide Details" : "Show Details"}
+            </button>
+                <button
+                  type="button"
+                  onClick={() => handleLoadWorkout(savedWorkout)}
+                >
+                  Load Workout
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteWorkout(savedWorkout.id)}
+                >
+                  Delete Saved Workout
+                </button>
+              </div>
+            
+              {expandedSavedWorkouts[savedWorkout.id] &&
+                savedWorkout.plan.map((dayPlan) => (
+                  <div key={dayPlan.day} className="saved-workout-day">
+                    <h4>{dayPlan.day}</h4>
+                    <ul>
+                      {dayPlan.exercises.map((exercise, index) => (
+                        <li key={index}>
+                          {exercise.name} - {exercise.prescription}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+            </div>
+          ))}
         </div>
-
-        {savedWorkout.plan.map((dayPlan) => (
-          <div key={dayPlan.day}>
-            <h4>{dayPlan.day}</h4>
-            <ul>
-              {dayPlan.exercises.map((exercise, index) => (
-                <li key={index}>
-                  {exercise.name} - {exercise.prescription}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    ))}
-  </div>
-)}
+      )}
     </div>
+  </div>
+</div>
   );
 }
 
