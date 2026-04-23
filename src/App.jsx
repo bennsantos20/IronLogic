@@ -208,8 +208,77 @@ const getDayTemplates = () => {
   ];
 };
 
-const getNextExercise = (muscleExercises, usedExerciseNames) => {
-  const unusedExercises = muscleExercises.filter(
+const getPreferredExerciseOrder = (muscleExercises, currentDayExercises) => {
+  const currentCompoundCount = currentDayExercises.filter(
+    (exercise) => exercise.type === "compound"
+  ).length;
+
+  const currentIsolationCount = currentDayExercises.filter(
+    (exercise) => exercise.type === "isolation"
+  ).length;
+
+  if (duration === "30") {
+    const compounds = muscleExercises.filter(
+      (exercise) => exercise.type === "compound"
+    );
+    const isolations = muscleExercises.filter(
+      (exercise) => exercise.type === "isolation"
+    );
+
+    return [...compounds, ...isolations];
+  }
+
+  if (duration === "45") {
+    if (currentCompoundCount < 2) {
+      const compounds = muscleExercises.filter(
+        (exercise) => exercise.type === "compound"
+      );
+      const isolations = muscleExercises.filter(
+        (exercise) => exercise.type === "isolation"
+      );
+
+      return [...compounds, ...isolations];
+    }
+
+    return muscleExercises;
+  }
+
+  if (duration === "60") {
+    if (currentCompoundCount <= currentIsolationCount) {
+      const compounds = muscleExercises.filter(
+        (exercise) => exercise.type === "compound"
+      );
+      const isolations = muscleExercises.filter(
+        (exercise) => exercise.type === "isolation"
+      );
+
+      return [...compounds, ...isolations];
+    }
+
+    const isolations = muscleExercises.filter(
+      (exercise) => exercise.type === "isolation"
+    );
+    const compounds = muscleExercises.filter(
+      (exercise) => exercise.type === "compound"
+    );
+
+    return [...isolations, ...compounds];
+  }
+
+  return muscleExercises;
+};
+
+const getNextExercise = (
+  muscleExercises,
+  usedExerciseNames,
+  currentDayExercises
+) => {
+  const orderedExercises = getPreferredExerciseOrder(
+    muscleExercises,
+    currentDayExercises
+  );
+
+  const unusedExercises = orderedExercises.filter(
     (exercise) => !usedExerciseNames.includes(exercise.name)
   );
 
@@ -256,7 +325,8 @@ const generateWorkoutPlan = () => {
 
         const chosenExercise = getNextExercise(
           muscleExercises,
-          usedExerciseNames
+          usedExerciseNames,
+          plan[dayIndex].exercises
         );
 
         if (chosenExercise) {
@@ -296,6 +366,72 @@ const generateWorkoutPlan = () => {
   }
 
   return plan;
+};
+
+const generateSingleDayPlan = (dayIndex) => {
+  const exercisesPerDay = getExercisesPerDay();
+  const groupedExercises = groupExercisesByMuscle();
+  const dayTemplates = getDayTemplates();
+  const template = dayTemplates[dayIndex] || [];
+  const dayExercises = [];
+  const usedExerciseNames = [];
+  let safetyCounter = 0;
+
+  while (dayExercises.length < exercisesPerDay && safetyCounter < 50) {
+    let addedExercise = false;
+
+    for (let i = 0; i < template.length; i++) {
+      const muscleGroup = template[i];
+      const muscleExercises = groupedExercises[muscleGroup] || [];
+
+      const orderedExercises = getPreferredExerciseOrder(
+        muscleExercises,
+        dayExercises
+      );
+
+      const availableExercises = orderedExercises.filter(
+        (exercise) => !usedExerciseNames.includes(exercise.name)
+      );
+
+      if (availableExercises.length > 0) {
+        const chosenExercise = availableExercises[0];
+
+        dayExercises.push({
+          ...chosenExercise,
+          prescription: getSetsAndReps(),
+        });
+
+        usedExerciseNames.push(chosenExercise.name);
+        addedExercise = true;
+
+        if (dayExercises.length >= exercisesPerDay) {
+          break;
+        }
+      }
+    }
+
+    if (!addedExercise) {
+      break;
+    }
+
+    safetyCounter++;
+  }
+
+  while (dayExercises.length < exercisesPerDay) {
+    const fallbackExercise =
+      filteredExercises[Math.floor(Math.random() * filteredExercises.length)];
+
+    dayExercises.push({
+      ...fallbackExercise,
+      name: `${fallbackExercise.name} (Repeat)`,
+      prescription: getSetsAndReps(),
+    });
+  }
+
+  return {
+    day: `Day ${dayIndex + 1}`,
+    exercises: dayExercises,
+  };
 };
 
 const normalizeExerciseName = (name) => {
@@ -435,6 +571,37 @@ const handleSaveWorkout = () => {
 
   setSavedWorkouts(updatedWorkouts);
   localStorage.setItem("savedWorkouts", JSON.stringify(updatedWorkouts));
+};
+
+const handleRegenerateDay = (dayIndex) => {
+  const updatedWorkoutPlan = [...workoutPlan];
+  updatedWorkoutPlan[dayIndex] = generateSingleDayPlan(dayIndex);
+
+  setWorkoutPlan(updatedWorkoutPlan);
+
+  setSwapSelections((prev) => {
+    const updated = { ...prev };
+
+    Object.keys(updated).forEach((key) => {
+      if (key.startsWith(`${dayIndex}-`)) {
+        delete updated[key];
+      }
+    });
+
+    return updated;
+  });
+
+  setSwapOptions((prev) => {
+    const updated = { ...prev };
+
+    Object.keys(updated).forEach((key) => {
+      if (key.startsWith(`${dayIndex}-`)) {
+        delete updated[key];
+      }
+    });
+
+    return updated;
+  });
 };
 
 const handleDeleteWorkout = (id) => {
@@ -607,7 +774,16 @@ const handleSubmit = (event) => {
 
     {workoutPlan.map((dayPlan, dayIndex) => (
       <div key={dayPlan.day} className="day-card">
-        <h3>{dayPlan.day}</h3>
+        <div className="day-card-header">
+          <h3>{dayPlan.day}</h3>
+          <button
+            type="button"
+            onClick={() => handleRegenerateDay(dayIndex)}
+          >
+            Regenerate Day
+          </button>
+        </div>
+
         <ul>
           {dayPlan.exercises.map((exercise, exerciseIndex) => {
             const swapKey = getSwapKey(dayIndex, exerciseIndex);
