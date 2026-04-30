@@ -424,7 +424,8 @@ const generateSingleDayPlan = (dayIndex) => {
       );
 
       if (availableExercises.length > 0) {
-        const chosenExercise = availableExercises[0];
+  const randomIndex = Math.floor(Math.random() * availableExercises.length);
+  const chosenExercise = availableExercises[randomIndex];
 
         dayExercises.push({
           ...chosenExercise,
@@ -704,8 +705,8 @@ const handleSubmit = (event) => {
       <div className="hero-badge">IronLogic</div>
       <h1>Build Smarter Training Plans</h1>
       <p>
-        IronLogic is a rule-based workout planner that generates structured weekly
-        plans based on your training days, duration, equipment, goal, and workout
+        Build your weekly workouts using IronLogic, a rule based generator that creates
+        weekly plans based on your training days, duration, equipment, goal, and workout
         focus.
       </p>
     </div>

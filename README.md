@@ -1,16 +1,35 @@
-# React + Vite
+# IronLogic
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+IronLogic is a constraint-based workout plan generator built with React and Vite. This application generates weekly workout plans based on user-selected inputs such as training days, workout duration, fitness goal, available equipment, and workout focus.
 
-Currently, two official plugins are available:
+## Features
+- Workout plan generation based on user constraints
+- Exercise swapping within generated plans
+- Regenerate a single workout day
+- Progression guidance based on training goal
+- Login and signup with user specific saved workouts
+- Printable workout view
+- Collapsible saved workouts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Technologies Used
+- React
+- Vite
+- JavaScript
+- CSS
+- localStorage
 
-## React Compiler
+## How to Run
+1. Open the project folder in VS Code
+2. Run:
+   npm install
+   npm run dev
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Main Files
+- `src/Dashboard.jsx`
+- `src/Login.jsx`
+- `src/Signup.jsx`
+- `src/exerciseData.js`
+- `src/App.css`
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Author
+Benjamin Santos
