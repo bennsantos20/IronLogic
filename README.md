@@ -2,6 +2,8 @@
 
 IronLogic is a constraint-based workout plan generator built with React and Vite. This application generates weekly workout plans based on user-selected inputs such as training days, workout duration, fitness goal, available equipment, and workout focus.
 
+View the deployed site here - https://bennsantos20.github.io/IronLogic/
+
 ## Features
 - Workout plan generation based on user constraints
 - Exercise swapping within generated plans
